@@ -1,0 +1,20 @@
+#!/bin/sh
+echo "Running pre-commit"
+
+function working_tree_in_detached_head() {
+  return $(git symbolic-ref -q HEAD &>/dev/null; echo $?)
+}
+
+# Check for *unstaged* changes to tracked files [1].
+# [1]: https://stackoverflow.com/a/2659808
+if [[ $(git diff-files --quiet; echo $?) -ne 0 ]]; then
+  echo "There are unstaged local changes to tracked files. Aborting commit."
+  exit 1
+fi
+# Check for *unstaged* untracked files (that are not ignored) [1].
+if [[ $(git ls-files --exclude-standard --others &>/dev/null; echo $?) -ne 0 ]]; then
+  echo "There are untracked files (which are not ignored). Aborting commit."
+  exit 1
+fi
+exit 0
+
